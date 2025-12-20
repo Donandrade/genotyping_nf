@@ -1,0 +1,1 @@
+2025-12-20 12:00:02	8m 9s	cranky_hawking	OK	1fa26716abede8585a041bce001daf75	28a1ea81-b5a4-41b1-b3f1-dede7c770bc4	nextflow run main.nf -resume -with-report logs/report.html -with-timeline logs/timeline.html
