@@ -1,0 +1,171 @@
+Dec-21 10:17:54.449 [main] DEBUG nextflow.cli.Launcher - $> nextflow run main.nf -resume -with-report logs/report.html -with-timeline logs/timeline.html
+Dec-21 10:17:54.887 [main] DEBUG nextflow.cli.CmdRun - N E X T F L O W  ~  version 25.04.7
+Dec-21 10:17:55.024 [main] DEBUG nextflow.plugin.PluginsFacade - Setting up plugin manager > mode=prod; embedded=false; plugins-dir=/home/deandradesilvae/.nextflow/plugins; core-plugins: nf-amazon@2.15.0-patch1,nf-azure@1.16.0-patch1,nf-cloudcache@0.4.3,nf-codecommit@0.2.3,nf-console@1.2.1,nf-google@1.21.1,nf-k8s@1.0.0,nf-tower@1.11.4-patch1,nf-wave@1.12.1
+Dec-21 10:17:55.105 [main] INFO  o.pf4j.DefaultPluginStatusProvider - Enabled plugins: []
+Dec-21 10:17:55.106 [main] INFO  o.pf4j.DefaultPluginStatusProvider - Disabled plugins: []
+Dec-21 10:17:55.115 [main] INFO  org.pf4j.DefaultPluginManager - PF4J version 3.12.0 in 'deployment' mode
+Dec-21 10:17:55.181 [main] INFO  org.pf4j.AbstractPluginManager - No plugins
+Dec-21 10:17:55.271 [main] DEBUG nextflow.config.ConfigBuilder - Found config local: /blue/munoz/deandradesilvae/vccinoum_genomes/pangenome_wgs/genotyping_pipeline_nf/nextflow.config
+Dec-21 10:17:55.275 [main] DEBUG nextflow.config.ConfigBuilder - Parsing config file: /blue/munoz/deandradesilvae/vccinoum_genomes/pangenome_wgs/genotyping_pipeline_nf/nextflow.config
+Dec-21 10:17:55.445 [main] DEBUG n.secret.LocalSecretsProvider - Secrets store: /home/deandradesilvae/.nextflow/secrets/store.json
+Dec-21 10:17:55.463 [main] DEBUG nextflow.secret.SecretsLoader - Discovered secrets providers: [nextflow.secret.LocalSecretsProvider@56781d96] - activable => nextflow.secret.LocalSecretsProvider@56781d96
+Dec-21 10:17:55.496 [main] DEBUG nextflow.config.ConfigBuilder - Applying config profile: `standard`
+Dec-21 10:17:57.698 [main] DEBUG nextflow.cli.CmdRun - Applied DSL=2 from script declaration
+Dec-21 10:17:57.755 [main] DEBUG nextflow.cli.CmdRun - Launching `main.nf` [disturbed_poisson] DSL2 - revision: b18ae8029c
+Dec-21 10:17:57.757 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins default=[]
+Dec-21 10:17:57.758 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins resolved requirement=[]
+Dec-21 10:17:57.950 [main] DEBUG nextflow.Session - Session UUID: 28a1ea81-b5a4-41b1-b3f1-dede7c770bc4
+Dec-21 10:17:57.951 [main] DEBUG nextflow.Session - Run name: disturbed_poisson
+Dec-21 10:17:57.951 [main] DEBUG nextflow.Session - Executor pool size: 2
+Dec-21 10:17:57.991 [main] DEBUG nextflow.file.FilePorter - File porter settings maxRetries=3; maxTransfers=50; pollTimeout=null
+Dec-21 10:17:58.003 [main] DEBUG nextflow.util.ThreadPoolBuilder - Creating thread pool 'FileTransfer' minSize=10; maxSize=10; workQueue=LinkedBlockingQueue[-1]; allowCoreThreadTimeout=false
+Dec-21 10:17:58.079 [main] DEBUG nextflow.cli.CmdRun - 
+  Version: 25.04.7 build 5955
+  Created: 08-09-2025 13:29 UTC (09:29 EDT)
+  System: Linux 5.14.0-503.40.1.el9_5.x86_64
+  Runtime: Groovy 4.0.26 on OpenJDK 64-Bit Server VM 20.0.1+9-29
+  Encoding: UTF-8 (UTF-8)
+  Process: 3530393@c0704a-s16.ufhpc [172.16.201.136]
+  CPUs: 1 - Mem: 1007.2 GB (600.4 GB) - Swap: 8 GB (5.7 GB)
+Dec-21 10:17:58.227 [main] DEBUG nextflow.Session - Work-dir: /blue/munoz/deandradesilvae/vccinoum_genomes/pangenome_wgs/genotyping_pipeline_nf/work [lustre]
+Dec-21 10:17:58.230 [main] DEBUG nextflow.Session - Script base path does not exist or is not a directory: /blue/munoz/deandradesilvae/vccinoum_genomes/pangenome_wgs/genotyping_pipeline_nf/bin
+Dec-21 10:17:58.261 [main] DEBUG nextflow.executor.ExecutorFactory - Extension executors providers=[]
+Dec-21 10:17:58.310 [main] DEBUG nextflow.Session - Observer factory: DefaultObserverFactory
+Dec-21 10:17:58.368 [main] DEBUG nextflow.Session - Observer factory (v2): LinObserverFactory
+Dec-21 10:17:58.475 [main] DEBUG nextflow.cache.CacheFactory - Using Nextflow cache factory: nextflow.cache.DefaultCacheFactory
+Dec-21 10:17:58.508 [main] DEBUG nextflow.util.CustomThreadPool - Creating default thread pool > poolSize: 2; maxThreads: 1000
+Dec-21 10:17:58.842 [main] DEBUG nextflow.Session - Session start
+Dec-21 10:17:58.875 [main] DEBUG nextflow.trace.TraceFileObserver - Workflow started -- trace file: /blue/munoz/deandradesilvae/vccinoum_genomes/pangenome_wgs/genotyping_pipeline_nf/pipeline_trace.txt
+Dec-21 10:17:58.883 [main] DEBUG nextflow.Session - Trace file already exists: /blue/munoz/deandradesilvae/vccinoum_genomes/pangenome_wgs/genotyping_pipeline_nf/pipeline_trace.txt -- enable the 'trace.overwrite' option in your config file to overwrite existing files
+nextflow.exception.AbortOperationException: Trace file already exists: /blue/munoz/deandradesilvae/vccinoum_genomes/pangenome_wgs/genotyping_pipeline_nf/pipeline_trace.txt -- enable the 'trace.overwrite' option in your config file to overwrite existing files
+	at nextflow.trace.TraceHelper.newFileWriter(TraceHelper.groovy:67)
+	at nextflow.trace.TraceFileObserver.onFlowCreate(TraceFileObserver.groovy:206)
+	at nextflow.Session$_notifyFlowCreate_lambda40.doCall(Session.groovy:1093)
+	at nextflow.Session.notifyEvent(Session.groovy:1138)
+	at nextflow.Session.notifyFlowCreate(Session.groovy:1093)
+	at nextflow.Session.start(Session.groovy:585)
+	at nextflow.script.ScriptRunner.execute(ScriptRunner.groovy:133)
+	at nextflow.cli.CmdRun.run(CmdRun.groovy:379)
+	at nextflow.cli.Launcher.run(Launcher.groovy:513)
+	at nextflow.cli.Launcher.main(Launcher.groovy:673)
+Caused by: java.nio.file.FileAlreadyExistsException: /blue/munoz/deandradesilvae/vccinoum_genomes/pangenome_wgs/genotyping_pipeline_nf/pipeline_trace.txt
+	at java.base/sun.nio.fs.UnixException.translateToIOException(UnixException.java:94)
+	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:106)
+	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:111)
+	at java.base/sun.nio.fs.UnixFileSystemProvider.newByteChannel(UnixFileSystemProvider.java:261)
+	at java.base/java.nio.file.spi.FileSystemProvider.newOutputStream(FileSystemProvider.java:484)
+	at java.base/java.nio.file.Files.newOutputStream(Files.java:227)
+	at java.base/java.nio.file.Files.newBufferedWriter(Files.java:2983)
+	at nextflow.trace.TraceHelper.newFileWriter(TraceHelper.groovy:64)
+	... 9 common frames omitted
+Dec-21 10:17:58.891 [main] DEBUG nextflow.Session - Report file already exists: /blue/munoz/deandradesilvae/vccinoum_genomes/pangenome_wgs/genotyping_pipeline_nf/logs/report.html -- enable the 'report.overwrite' option in your config file to overwrite existing files
+nextflow.exception.AbortOperationException: Report file already exists: /blue/munoz/deandradesilvae/vccinoum_genomes/pangenome_wgs/genotyping_pipeline_nf/logs/report.html -- enable the 'report.overwrite' option in your config file to overwrite existing files
+	at nextflow.trace.ReportObserver.onFlowCreate(ReportObserver.groovy:133)
+	at nextflow.Session$_notifyFlowCreate_lambda40.doCall(Session.groovy:1093)
+	at nextflow.Session.notifyEvent(Session.groovy:1138)
+	at nextflow.Session.notifyFlowCreate(Session.groovy:1093)
+	at nextflow.Session.start(Session.groovy:585)
+	at nextflow.script.ScriptRunner.execute(ScriptRunner.groovy:133)
+	at nextflow.cli.CmdRun.run(CmdRun.groovy:379)
+	at nextflow.cli.Launcher.run(Launcher.groovy:513)
+	at nextflow.cli.Launcher.main(Launcher.groovy:673)
+Dec-21 10:17:58.892 [main] DEBUG nextflow.Session - Timeline file already exists: /blue/munoz/deandradesilvae/vccinoum_genomes/pangenome_wgs/genotyping_pipeline_nf/logs/timeline.html -- enable the 'timeline.overwrite' option in your config file to overwrite existing files
+nextflow.exception.AbortOperationException: Timeline file already exists: /blue/munoz/deandradesilvae/vccinoum_genomes/pangenome_wgs/genotyping_pipeline_nf/logs/timeline.html -- enable the 'timeline.overwrite' option in your config file to overwrite existing files
+	at nextflow.trace.TimelineObserver.onFlowCreate(TimelineObserver.groovy:76)
+	at nextflow.Session$_notifyFlowCreate_lambda40.doCall(Session.groovy:1093)
+	at nextflow.Session.notifyEvent(Session.groovy:1138)
+	at nextflow.Session.notifyFlowCreate(Session.groovy:1093)
+	at nextflow.Session.start(Session.groovy:585)
+	at nextflow.script.ScriptRunner.execute(ScriptRunner.groovy:133)
+	at nextflow.cli.CmdRun.run(CmdRun.groovy:379)
+	at nextflow.cli.Launcher.run(Launcher.groovy:513)
+	at nextflow.cli.Launcher.main(Launcher.groovy:673)
+Dec-21 10:18:01.097 [main] DEBUG nextflow.script.ScriptRunner - > Launching execution
+Dec-21 10:18:01.158 [main] INFO  nextflow.Nextflow - 
+    B L U E B E R R Y   G E N O T Y P I N G   (Nextflow)
+    ====================================================
+    Samples   : samples_small_set2.tsv
+    Ref       : ./reference/subgenome_blue_sample.fa
+    Outdir    : ./results_set2
+    
+Dec-21 10:18:01.817 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withName:TRIM` matches process TRIM
+Dec-21 10:18:01.865 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: slurm
+Dec-21 10:18:01.866 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'slurm'
+Dec-21 10:18:01.895 [main] DEBUG nextflow.executor.Executor - [warm up] executor > slurm
+Dec-21 10:18:01.921 [main] DEBUG n.processor.TaskPollingMonitor - Creating task monitor for executor 'slurm' > capacity: 100; pollInterval: 5s; dumpInterval: 5m 
+Dec-21 10:18:01.932 [main] DEBUG n.processor.TaskPollingMonitor - >>> barrier register (monitor: slurm)
+Dec-21 10:18:01.934 [main] DEBUG n.processor.TaskPollingMonitor - Creating submit rate limit of 1 submissions per 1 seconds
+Dec-21 10:18:01.968 [main] DEBUG n.executor.AbstractGridExecutor - Creating executor 'slurm' > queue-stat-interval: 1m
+Dec-21 10:18:02.016 [main] DEBUG nextflow.processor.TaskProcessor - Creating process 'TRIM': maxForks=0; fair=false; array=0
+Dec-21 10:18:02.163 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withName:ALIGN` matches process ALIGN
+Dec-21 10:18:02.169 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: slurm
+Dec-21 10:18:02.170 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'slurm'
+Dec-21 10:18:02.173 [main] DEBUG nextflow.processor.TaskProcessor - Creating process 'ALIGN': maxForks=0; fair=false; array=0
+Dec-21 10:18:02.209 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withName:ADD_READ_GROUPS` matches process ADD_READ_GROUPS
+Dec-21 10:18:02.215 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: slurm
+Dec-21 10:18:02.216 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'slurm'
+Dec-21 10:18:02.219 [main] DEBUG nextflow.processor.TaskProcessor - Creating process 'ADD_READ_GROUPS': maxForks=0; fair=false; array=0
+Dec-21 10:18:02.248 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withName:MARK_DUPLICATES` matches process MARK_DUPLICATES
+Dec-21 10:18:02.267 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: slurm
+Dec-21 10:18:02.268 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'slurm'
+Dec-21 10:18:02.270 [main] DEBUG nextflow.processor.TaskProcessor - Creating process 'MARK_DUPLICATES': maxForks=0; fair=false; array=0
+Dec-21 10:18:02.289 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withName:QC_BAM` matches process QC_BAM
+Dec-21 10:18:02.295 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: slurm
+Dec-21 10:18:02.295 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'slurm'
+Dec-21 10:18:02.297 [main] DEBUG nextflow.processor.TaskProcessor - Creating process 'QC_BAM': maxForks=0; fair=false; array=0
+Dec-21 10:18:02.335 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withName:INDIVIDUAL_CALL` matches process INDIVIDUAL_CALL
+Dec-21 10:18:02.338 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: slurm
+Dec-21 10:18:02.346 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'slurm'
+Dec-21 10:18:02.350 [main] DEBUG nextflow.processor.TaskProcessor - Creating process 'INDIVIDUAL_CALL': maxForks=0; fair=false; array=0
+Dec-21 10:18:02.423 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withName:MERGE_AND_CALL` matches process MERGE_AND_CALL
+Dec-21 10:18:02.431 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: slurm
+Dec-21 10:18:02.432 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'slurm'
+Dec-21 10:18:02.435 [main] DEBUG nextflow.processor.TaskProcessor - Creating process 'MERGE_AND_CALL': maxForks=0; fair=false; array=0
+Dec-21 10:18:02.508 [main] DEBUG nextflow.script.ScriptRunner - Parsed script files:
+  Script_ffe306e307e15455: /blue/munoz/deandradesilvae/vccinoum_genomes/pangenome_wgs/genotyping_pipeline_nf/main.nf
+Dec-21 10:18:02.508 [main] DEBUG nextflow.Session - Session aborted -- Cause: Missing process or function mix([DataflowStream[?], Logger[nextflow.script.ChannelOut]])
+Dec-21 10:18:02.583 [main] DEBUG nextflow.Session - The following nodes are still active:
+  [operator] splitCsv
+  [operator] map
+  [operator] collect
+  [operator] collect
+  [operator] collect
+
+Dec-21 10:18:02.587 [Task monitor] DEBUG n.processor.TaskPollingMonitor - <<< barrier arrives (monitor: slurm) - terminating tasks monitor poll loop
+Dec-21 10:18:02.600 [main] ERROR nextflow.cli.Launcher - @unknown
+nextflow.exception.MissingProcessException: Missing process or function mix([DataflowStream[?], Logger[nextflow.script.ChannelOut]])
+	at nextflow.script.WorkflowDef.run(WorkflowDef.groovy:192)
+	at nextflow.script.BindableDef.invoke_a(BindableDef.groovy:51)
+	at org.codehaus.groovy.vmplugin.v8.IndyInterface.fromCache(IndyInterface.java:321)
+	at nextflow.script.BaseScript.run0(BaseScript.groovy:182)
+	at org.codehaus.groovy.vmplugin.v8.IndyInterface.fromCache(IndyInterface.java:321)
+	at nextflow.script.BaseScript.run(BaseScript.groovy:193)
+	at nextflow.script.parser.v1.ScriptLoaderV1.runScript(ScriptLoaderV1.groovy:246)
+	at nextflow.script.parser.v1.ScriptLoaderV1.runScript(ScriptLoaderV1.groovy)
+	at nextflow.script.ScriptRunner.run(ScriptRunner.groovy:246)
+	at nextflow.script.ScriptRunner.execute(ScriptRunner.groovy:139)
+	at nextflow.cli.CmdRun.run(CmdRun.groovy:379)
+	at nextflow.cli.Launcher.run(Launcher.groovy:513)
+	at nextflow.cli.Launcher.main(Launcher.groovy:673)
+Caused by: groovy.lang.MissingMethodException: No signature of method: nextflow.extension.OperatorImpl.mix() is applicable for argument types: (g.g.d.s.DataflowStreamReadAdapter, c.q.l.c.Logger) values: [DataflowStream[?], Logger[nextflow.script.ChannelOut]]
+Possible solutions: mix(groovyx.gpars.dataflow.DataflowReadChannel, [Lgroovyx.gpars.dataflow.DataflowReadChannel;), max(groovyx.gpars.dataflow.DataflowReadChannel, java.util.Comparator), max(groovyx.gpars.dataflow.DataflowReadChannel), max(groovyx.gpars.dataflow.DataflowReadChannel, groovy.lang.Closure), min(groovyx.gpars.dataflow.DataflowReadChannel), min(groovyx.gpars.dataflow.DataflowReadChannel, groovy.lang.Closure)
+	at nextflow.extension.OpCall.getMethod0(OpCall.groovy:309)
+	at nextflow.extension.OpCall.invoke1(OpCall.groovy:314)
+	at nextflow.extension.OpCall.invoke0(OpCall.groovy:302)
+	at nextflow.extension.OpCall.invoke(OpCall.groovy:162)
+	at nextflow.extension.OpCall.call(OpCall.groovy:112)
+	at nextflow.plugin.extension.PluginExtensionProvider.invokeExtensionMethod(PluginExtensionProvider.groovy:280)
+	at groovy.runtime.metaclass.NextflowDelegatingMetaClass.invokeMethod(NextflowDelegatingMetaClass.java:58)
+	at org.codehaus.groovy.vmplugin.v8.IndyInterface.fromCache(IndyInterface.java:321)
+	at Script_ffe306e307e15455$_runScript_closure9$_closure40.doCall(Script_ffe306e307e15455:262)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:578)
+	at org.codehaus.groovy.reflection.CachedMethod.invoke(CachedMethod.java:343)
+	at groovy.lang.MetaMethod.doMethodInvoke(MetaMethod.java:328)
+	at org.codehaus.groovy.runtime.metaclass.ClosureMetaClass.invokeMethod(ClosureMetaClass.java:280)
+	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1007)
+	at groovy.lang.Closure.call(Closure.java:433)
+	at groovy.lang.Closure.call(Closure.java:412)
+	at nextflow.script.WorkflowDef.run0(WorkflowDef.groovy:205)
+	at nextflow.script.WorkflowDef.run(WorkflowDef.groovy:189)
+	... 12 common frames omitted

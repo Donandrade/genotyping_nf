@@ -1,6 +1,6 @@
 # This file was produced by samtools stats (1.20+htslib-1.21) and can be plotted using plot-bamstats
 # This file contains statistics for all reads.
-# The command line was:  stats sample3785.sorted.bam
+# The command line was:  stats sample3785.sorted.group.rmdup.bam
 # CHK, Checksum	[2]Read Names	[3]Sequences	[4]Qualities
 # CHK, CRC32 of reads which passed filtering followed by addition (32bit overflow)
 CHK	72bdb804	30c467f9	93be98f0
