@@ -62,6 +62,7 @@ process ADD_READ_GROUPS {
     """
 }
 
+
 process MARK_DUPLICATES {
     tag "$sample"
     publishDir "${params.outdir}/bam_rmdup", mode: 'copy'
@@ -131,24 +132,40 @@ process MERGE_AND_CALL {
     output:
         path "merged.*.called.vcf.gz", emit: vcf
         path "*.vcf_stats.txt", emit: stats
+
     script:
     def safe_region = region.replace(':', '_').replace('-', '_')
     """
     ls -1 *.vcf.gz | sort > vcf_list.txt
     bcftools merge -Oz --threads ${task.cpus} -m none --file-list vcf_list.txt -r "${region}" -o merged.${safe_region}.all.vcf.gz
     bcftools call -mv -Oz -o merged.${safe_region}.called.vcf.gz merged.${safe_region}.all.vcf.gz
-    bcftools stats merged.${safe_region}.called.vcf.gz > merged.${safe_region}.vcf_stats.txt
+    
+    # Renomeando para o MultiQC usar apenas o nome da região na tabela
+    bcftools stats merged.${safe_region}.called.vcf.gz > ${safe_region}.vcf_stats.txt
+    
     tabix -f -p vcf merged.${safe_region}.called.vcf.gz
     """
 }
 
+
 process MULTIQC {
     tag "Geral"
     publishDir "${params.outdir}/multiqc_report", mode: 'copy'
-    input: path logs
-    output: path "multiqc_report.html"
-    script: "multiqc ."
+
+    input:
+    path logs    // Todos os logs coletados (.mix().collect())
+    path config  // O arquivo multiqc_config.yaml
+
+    output:
+    path "multiqc_report.html"
+
+    script:
+    """
+    # A flag -c indica ao MultiQC qual arquivo de configuração usar
+    multiqc . -c $config
+    """
 }
+
 
 // --- WORKFLOW ---
 
@@ -161,9 +178,15 @@ workflow {
     ref_indices = Channel.fromPath("${params.ref}.*").collect()
 
     // 1. Limpeza e Alinhamento
-    TRIM(fastq_ch)
-    ALIGN(TRIM.out.paired, ref_file, ref_indices)
+    // TRIM(fastq_ch)
+
+
+    // We need use this if the initial fastq are untrimmed
+    // ALIGN(TRIM.out.paired, ref_file, ref_indices)
     
+    // For imput with trimmed reads use like that:
+    ALIGN(fastq_ch, ref_file, ref_indices)
+
     // 2. Processamento Picard
     ADD_READ_GROUPS(ALIGN.out.bam)
     MARK_DUPLICATES(ADD_READ_GROUPS.out.bam)
@@ -183,14 +206,19 @@ workflow {
     
     MERGE_AND_CALL(vcf_list, tbi_list, regions_ch)
 
-    // 6. Relatório Final MultiQC
-    ch_multiqc_files = Channel.empty()
-        .mix(TRIM.out.log)             
-        .mix(MARK_DUPLICATES.out.metrics) 
-        .mix(QC_BAM.out.logs)          
-        .mix(COVERAGE_QC.out.logs)     
-        .mix(MERGE_AND_CALL.out.stats) 
+    multiqc_config_file = file("multiqc_config.yaml")
+
+    // 6. Final reports
+    ch_reports = Channel.empty()
+        // Uncomment here when untrimmed reads are used
+        // .mix(TRIM.out.log)
+        .mix(MARK_DUPLICATES.out.metrics)
+        .mix(QC_BAM.out.logs)
+        .mix(COVERAGE_QC.out.logs)
+        .mix(MERGE_AND_CALL.out.stats)
         .collect()
 
-    MULTIQC(ch_multiqc_files)
+    // Passa os logs E o arquivo de configuração para o processo
+    MULTIQC(ch_reports, multiqc_config_file)
+
 }
