@@ -4,3 +4,4 @@ pipeline_trace.txt
 work
 results_set2/
 01_bnear_blue/
+.nextflow*

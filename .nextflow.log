@@ -7503,3 +7503,8 @@ java.lang.NullPointerException: Cannot invoke "groovyx.gpars.agent.Agent.send(Ob
 	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
 	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
 	at java.base/java.lang.Thread.run(Thread.java:1623)
+Dec-23 16:39:11.533 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor slurm > tasks to be completed: 4 -- submitted tasks are shown below
+~> TaskHandler[jobId: 21823251; id: 221; name: INDIVIDUAL_CALL (SHB_JellyBean_S641); status: RUNNING; exit: -; error: -; workDir: /blue/munoz/deandradesilvae/vccinoum_genomes/pangenome_wgs/genotyping_pipeline_nf/work/e1/cf948a3ab698b7b40f388234fe3a60 started: 1766507590531; exited: -; ]
+~> TaskHandler[jobId: 21824618; id: 253; name: INDIVIDUAL_CALL (SHB_Springhigh_S551); status: RUNNING; exit: -; error: -; workDir: /blue/munoz/deandradesilvae/vccinoum_genomes/pangenome_wgs/genotyping_pipeline_nf/work/8d/750d00f76e67f5f6d70dd6294ed6c1 started: 1766508720662; exited: -; ]
+~> TaskHandler[jobId: 21824623; id: 256; name: INDIVIDUAL_CALL (SHB_Reveille_S51); status: RUNNING; exit: -; error: -; workDir: /blue/munoz/deandradesilvae/vccinoum_genomes/pangenome_wgs/genotyping_pipeline_nf/work/c4/7d14e050f495eeb9cf4899f3e9514c started: 1766508720668; exited: -; ]
+~> TaskHandler[jobId: 21825549; id: 282; name: INDIVIDUAL_CALL (SHB_Rebel_S261); status: RUNNING; exit: -; error: -; workDir: /blue/munoz/deandradesilvae/vccinoum_genomes/pangenome_wgs/genotyping_pipeline_nf/work/6e/e382718c2376d877a959a5b2be1c30 started: 1766509470858; exited: -; ]
