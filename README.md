@@ -70,6 +70,8 @@ sbatch --mail-user=your@email.edu \
 
 **Variable Descriptions:**
 
+`--mail-user`: Your institutional email address for SLURM job notifications. Providing this allows the scheduler to send you real-time updates regarding job status (e.g., BEGIN, END, or FAIL).
+
 `MY_SAMPLES`: Path to your sample TSV file.
 
 `MY_PROBES`: Path to your BED file (or null).
