@@ -30,6 +30,46 @@ The workflow consists of the following steps:
 
 ## 3. Getting Started
 
+## Getting started
+
+Clone this repository into your SLURM-based HPC account before running the pipeline.
+
+```bash
+git clone git@github.com:Donandrade/genotyping_nf.git
+
+cd genotyping_nf
+```
+
+---
+
+## 3. Repository Organization
+
+The repository divided into scripts, acessories files (exemple of FASTQ and sample.tsv files):
+
+genotyping_nf/
+├── exemples
+│   ├── fastq_set1          # 1920 FASTQ simmulated to be used as exemple to test the workflow
+│   ├── fastq_set2          # Other 1920 simmulated FASTQ file to be used as exemple to test the workflow
+│   ├── reference           # Optional probe regions
+│   └── probes.bed          # This is an exemple of probes to be uses in our exemple dataset (`fastq_set1`, `fastq_set2`, `reference/`, `samples/`)
+├── main.nf                 # Central Nextflow workflow with the main process to run the entire variante calling pipeline
+├── nextflow.config         # Workflow configuration. In this file we have the setup os input and output file, directories, ad well the conffiguration of the resources (CPU and RAM memory) allocated in each step os the workflow coded in `main.nf`
+├── probes.bed              # This is an exemple of probes to be uses in our exemple dataset (`fastq_set1`, `fastq_set2`, `reference/`, `samples/`)
+└── run_pipeline.sh         # Chromosome/scaffold sizes
+
+**Main workflow files**
+
+
+
+
+genotyping_samples.sh: Implements Phase 1 (per-sample processing). This script performs read trimming, alignment, read-group assignment, BAM post-processing and QC, and generates per-sample pileups. It is designed to run as a SLURM array over samples, controlled by PER_TASK.
+
+genotyping_merge.sh: Implements Phase 2 (per-chromosome or per-region processing). This script collects pileups from all samples (and optionally from previous runs), performs chromosome-wise merging, and runs variant calling. It is designed to run as a SLURM array over chromosomes or regions, as defined in CHR_LIST.
+
+`genotyping.conf`: Central configuration file sourced by all pipeline scripts. It defines input files, reference paths, resource usage, output directories, probe behavior, chromosome lists, and optional reuse of previous pileups.
+
+`submit.sh`: SLURM submission wrapper that orchestrates the workflow execution. It submits the per-sample phase first, followed by the per-chromosome merge phase, ensuring the correct execution order and array configuration.
+
 ### Prerequisites
 * **Nextflow:** (Load via `module load nextflow` on HiPerGator).
 * **SLURM Account:** Configured for your specific group (e.g., `munoz`).
@@ -76,7 +116,6 @@ sbatch --mail-user=your@email.edu \
        run_pipeline.sh
 ```
 
-
 This workflow sould work in others cenarios, as in the exeple below:
 
 1. You wanna run the workflow just once without probes and without previous pileups to merge
@@ -87,7 +126,7 @@ sbatch --mail-user=your@email.edu \
        run_pipeline.sh
 ```
 
-If you wanna test the workflow this repository has two simulated FASTQ dataset in fastq_set1/ and fastq_set2/ direcoties and the `sample.tsv` exemples in the samples directory
+If you wanna test the workflow this repository has two simulated FASTQ dataset in `fastq_set1/` and `fastq_set2/` direcoties and the `sample.tsv` exemples in the samples directory
 
 **Variable Descriptions:**
 
