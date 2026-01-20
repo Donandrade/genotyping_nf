@@ -1,7 +1,9 @@
+out
+out*
+output/
 logs/
-assets
-pipeline_trace.txt
-work
-results_set2/
-01_linear_yellow/
+old_pileups
+reports
+work/
 .nextflow*
+2025_calling/

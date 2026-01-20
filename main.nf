@@ -1,231 +1,242 @@
 nextflow.enable.dsl=2
 
-// --- PARÂMETROS ---
-//params.chromosomes = ["VaccDscaff1", "VaccDscaff2", "VaccDscaff4", "VaccDscaff6", "VaccDscaff7", "VaccDscaff11", "VaccDscaff12", "VaccDscaff13", "VaccDscaff17", "VaccDscaff20", "VaccDscaff21", "VaccDscaff22"]
+// --- HELPER FUNCTIONS ---
+def create_chunks(fai_path, chunk_size) {
+    def chunks = []
+    file(fai_path).eachLine { line ->
+        def fields = line.split('\t')
+        def chrom = fields[0]
+        def size = fields[1].toLong()
 
-log.info """
-    B L U E B E R R Y   G E N O T Y P I N G   (Nextflow)
-    ====================================================
-    Samples   : ${params.samples}
-    Ref       : ${params.ref}
-    Outdir    : ${params.outdir}
-    """
+        if (size <= chunk_size) {
+            chunks << "${chrom}"
+        } else {
+            for (long start = 0; start < size; start += chunk_size) {
+                long end = Math.min(start + chunk_size, size)
+                chunks << "${chrom}:${start + 1}-${end}"
+            }
+        }
+    }
+    return chunks
+}
 
-// --- PROCESSOS ---
+// --- PROCESSES ---
 
 process TRIM {
     tag "$sample"
-    publishDir "${params.outdir}/trimmomatic", mode: 'copy'
-    input: tuple val(sample), path(reads)
+    publishDir "${params.outdir}/01_trimmed", mode: 'copy'
+
+    input:
+        tuple val(sample), path(reads)
+
     output:
-        tuple val(sample), path("*_paired.fq.gz"), emit: paired
-        path "*.log", emit: log
+        tuple val(sample), path("${sample}_R1_paired.fq.gz"), path("${sample}_R2_paired.fq.gz"), emit: paired
+        path "${sample}.trim.log", emit: log
         path "*_unpaired.fq.gz"
+
     script:
     """
     ADAPTERS="\$HPC_TRIMMOMATIC_ADAPTER/TruSeq3-PE.fa"
-    trimmomatic PE -threads ${task.cpus} -phred33 ${reads[0]} ${reads[1]} \\
-        ${sample}_R1_paired.fq.gz ${sample}_R1_unpaired.fq.gz \\
-        ${sample}_R2_paired.fq.gz ${sample}_R2_unpaired.fq.gz \\
-        ILLUMINACLIP:\${ADAPTERS}:2:30:10 SLIDINGWINDOW:4:20 TRAILING:20 MINLEN:50 \\
+    trimmomatic PE -threads ${task.cpus} -phred33 \
+        ${reads[0]} ${reads[1]} \
+        ${sample}_R1_paired.fq.gz ${sample}_R1_unpaired.fq.gz \
+        ${sample}_R2_paired.fq.gz ${sample}_R2_unpaired.fq.gz \
+        ILLUMINACLIP:\${ADAPTERS}:2:30:10 \
+        SLIDINGWINDOW:4:20 \
+        TRAILING:20 \
+        MINLEN:50 \
         2> ${sample}.trim.log
     """
 }
 
 process ALIGN {
     tag "$sample"
+    publishDir "${params.outdir}/02_bam", mode: 'copy'
+    
     input:
-        tuple val(sample), path(reads)
+        tuple val(sample), path(r1), path(r2)
         path ref
         path ref_indices
-
+        
     output:
-        tuple val(sample), path("${sample}.sorted.bam"), emit: bam
-
+        tuple val(sample), path("${sample}.sorted.bam"), path("${sample}.sorted.bam.bai"), emit: bam
+        
     script:
     """
-    bwa mem -t ${task.cpus} -M $ref ${reads[0]} ${reads[1]} | \\
-    samtools view -hb - | \\
+    # Using -R to define a clean Read Group. 
+    # This prevents the "2:2:2:" naming snowball by standardizing sample IDs.
+    bwa mem -t ${task.cpus} \\
+        -R "@RG\\tID:${sample}\\tLB:lib1\\tPL:ILLUMINA\\tPU:unit1\\tSM:${sample}" \\
+        $ref $r1 $r2 | \\
     samtools sort -@ ${task.cpus} -o ${sample}.sorted.bam -
+    
+    samtools index ${sample}.sorted.bam
     """
 }
 
-process ADD_READ_GROUPS {
-    tag "$sample"
-    input: tuple val(sample), path(bam)
-    output: tuple val(sample), path("${sample}.sorted.group.bam"), emit: bam
-    script:
-    def avail_mem = task.memory ? task.memory.toGiga() - 4 : 4
-    """
-    java -Xmx${avail_mem}g -jar \$HPC_PICARD_DIR/picard.jar AddOrReplaceReadGroups \\
-        INPUT=$bam OUTPUT=${sample}.sorted.group.bam \\
-        RGID=$sample RGLB=lib1 RGPL=ILLUMINA RGPU=10K RGSM=$sample
-    """
-}
 
-process MARK_DUPLICATES {
-    tag "$sample"
-    publishDir "${params.outdir}/bam_rmdup", mode: 'copy'
-    input: tuple val(sample), path(bam)
-    output:
-        tuple val(sample), path("${sample}.sorted.group.rmdup.bam"), path("${sample}.sorted.group.rmdup.bam.bai"), emit: bam
-        path "${sample}.duplicate.metrics", emit: metrics
-    script:
-    def avail_mem = task.memory ? task.memory.toGiga() - 4 : 8
-    """
-    java -Xmx${avail_mem}g -jar \$HPC_PICARD_DIR/picard.jar MarkDuplicates \\
-        INPUT=$bam OUTPUT=${sample}.sorted.group.rmdup.bam \\
-        METRICS_FILE=${sample}.duplicate.metrics ASSUME_SORT_ORDER=coordinate \\
-        REMOVE_DUPLICATES=true VALIDATION_STRINGENCY=LENIENT
-    samtools index ${sample}.sorted.group.rmdup.bam
-    """
-}
-
-process QC_BAM {
-    tag "$sample"
-    publishDir "${params.outdir}/reports", mode: 'copy'
-    input: tuple val(sample), path(bam), path(bai)
-    output: path "${sample}.*", emit: logs
-    script:
-    """
-    samtools flagstat $bam > ${sample}.flagstat.txt
-    samtools stats $bam > ${sample}.stats.txt
-    """
-}
-
-process COVERAGE_QC {
-    tag "$sample"
-    input: tuple val(sample), path(bam), path(bai)
-    output: path "${sample}.mosdepth.*", emit: logs
-    script:
-    """
-    mosdepth -n -x --threads ${task.cpus} ${sample} ${bam}
-    """
-}
-
-process INDIVIDUAL_CALL {
+process INDIVIDUAL_PILEUP {
     tag "$sample"
     input:
         tuple val(sample), path(bam), path(bai)
         path ref
         path ref_indices
-
+        path probes_file
     output:
-        path "${sample}.sorted_norm.vcf.gz", emit: vcf
-        path "${sample}.sorted_norm.vcf.gz.tbi", emit: tbi
-
+        tuple val(sample), path("${sample}.raw.vcf.gz"), path("${sample}.raw.vcf.gz.tbi"), emit: vcf
     script:
+    def target_opt = params.probes ? "-T ${probes_file}" : ""
     """
-    bcftools mpileup -f $ref --annotate FORMAT/AD,FORMAT/DP --min-MQ 20 $bam -Oz -o raw.vcf.gz
-    bcftools sort raw.vcf.gz | bcftools norm -O u --atomize -f $ref | \\
-    bcftools norm --multiallelics -any -f $ref -O z -o ${sample}.sorted_norm.vcf.gz
-    tabix -f -p vcf ${sample}.sorted_norm.vcf.gz
+    bcftools mpileup ${target_opt} -f ${ref} --annotate FORMAT/AD,FORMAT/DP ${bam} -Oz -o ${sample}.raw.vcf.gz
+    tabix -p vcf ${sample}.raw.vcf.gz
     """
 }
 
-process MERGE_AND_CALL {
-    tag "$region"
-    publishDir "${params.outdir}/merge", mode: 'copy'
-
+process SPLIT_VCF_TO_CHUNK {
+    tag "$sample | $chunk"
+    publishDir "${params.outdir}/04_splited_call", mode: 'copy'
     input:
-    path vcf_files
-    path tbi_files
-    val region
-
+        tuple val(sample), path(vcf), path(tbi), val(chunk)
     output:
-    path "merged.*.called.vcf.gz", emit: vcf
-    path "merged.*.called.vcf.gz.tbi", emit: tbi
-    path "*.vcf_stats.txt", emit: stats
-
+        tuple val(chunk), path("${sample}.${safe_chunk}.chunk.vcf.gz"), path("${sample}.${safe_chunk}.chunk.vcf.gz.tbi"), emit: chunk_vcf
     script:
-    def safe_region = region.replace(':', '_').replace('-', '_')
+    safe_chunk = chunk.replace(':', '_').replace('-', '_')
     """
-    # 1. Lista os VCFs recebidos para o merge
-    ls -1 *.vcf.gz | sort > vcf_list.txt
-
-    # 2. Merge de todas as amostras nesta região específica
-    bcftools merge \\
-        --threads ${task.cpus} \\
-        -m none \\
-        -r "${region}" \\
-        --file-list vcf_list.txt \\
-        -Oz -o merged.${safe_region}.all.vcf.gz
-
-    # 3. Chamada de variantes (Genotipagem conjunta)
-    bcftools call \\
-        -mv \\
-        --threads ${task.cpus} \\
-        -Oz -o merged.${safe_region}.called.vcf.gz \\
-        merged.${safe_region}.all.vcf.gz
-
-    # 4. Indexação e Estatísticas
-    tabix -p vcf merged.${safe_region}.called.vcf.gz
-    bcftools stats merged.${safe_region}.called.vcf.gz > ${safe_region}.vcf_stats.txt
-
-    # Limpeza do arquivo intermediário pesado
-    rm merged.${safe_region}.all.vcf.gz
+    bcftools view -r ${chunk} ${vcf} -Oz -o ${sample}.${safe_chunk}.chunk.vcf.gz
+    tabix -p vcf ${sample}.${safe_chunk}.chunk.vcf.gz
     """
 }
 
-process MULTIQC {
-    tag "Geral"
-    publishDir "${params.outdir}/multiqc_report", mode: 'copy'
+process MERGE_AND_CALL_BY_CHUNK {
+    tag "$chunk"
+    publishDir "${params.outdir}/04_final_calls/chunks", mode: 'copy'
 
     input:
-    path logs
-    path config
+        // O segredo está aqui: o Nextflow renomeia os arquivos no 'stage' do processo
+        tuple val(chunk), path(vcfs), path(tbis), path('past.vcf.gz'), path('past.vcf.gz.tbi')
+        path ref
 
     output:
-    path "multiqc_report.html"
+        path "merged.${safe_chunk}.pileup.vcf.gz", emit: vcf_merged
+        path "merged.${safe_chunk}.called.vcf.gz", emit: vcf_called
+        path "merged.${safe_chunk}.called.vcf.gz.tbi", emit: tbi_called
+        path "${safe_chunk}.stats.txt", emit: stats
+
+    script:
+    safe_chunk = chunk.replace(':', '_').replace('-', '_')
+    """
+    # 1. Merge das amostras atuais (2026)
+    echo "${vcfs.join('\n')}" > vcf_list.txt
+    bcftools merge -Oz --threads ${task.cpus} -l vcf_list.txt -o novas_amostras.vcf.gz
+    tabix -f -p vcf novas_amostras.vcf.gz
+
+    # 2. Lógica de Merge Histórico
+    # Verificamos se 'past.vcf.gz' é um VCF real (tem conteúdo e não é o dummy vazio)
+    if [ -s past.vcf.gz ] && [ "\$(zcat past.vcf.gz | head -c 1 | wc -c)" -ne 0 ]; then
+        
+        # Garantimos que o índice do passado está atualizado (resolve o erro 255)
+        tabix -f -p vcf past.vcf.gz
+        
+        bcftools merge --force-samples -Oz --threads ${task.cpus} \
+            novas_amostras.vcf.gz past.vcf.gz \
+            -o tmp_merged.vcf.gz
+        mv tmp_merged.vcf.gz merged.${safe_chunk}.pileup.vcf.gz
+    else
+        # Se for a primeira rodada ou passado inválido, usamos apenas as novas
+        mv novas_amostras.vcf.gz merged.${safe_chunk}.pileup.vcf.gz
+    fi
+
+    # 3. Indexação do Pileup Final (essencial para o calling)
+    tabix -f -p vcf merged.${safe_chunk}.pileup.vcf.gz
+
+    # 4. Variant Calling
+    # Mesmo se houver apenas header, o bcftools call lida com isso, mas checamos variantes:
+    V_COUNT=\$(bcftools view -H merged.${safe_chunk}.pileup.vcf.gz | head -n 1 | wc -l)
+
+    if [ "\$V_COUNT" -gt 0 ]; then
+        bcftools call -m -Oz -o merged.${safe_chunk}.called.vcf.gz merged.${safe_chunk}.pileup.vcf.gz
+    else
+        echo "Chunk ${chunk} sem variantes. Mantendo apenas header."
+        cp merged.${safe_chunk}.pileup.vcf.gz merged.${safe_chunk}.called.vcf.gz
+    fi
+
+    tabix -f -p vcf merged.${safe_chunk}.called.vcf.gz
+    bcftools stats merged.${safe_chunk}.called.vcf.gz > ${safe_chunk}.stats.txt
+    """
+}
+
+process CONCATENATE_ALL {
+    tag "Final Join"
+    publishDir "${params.outdir}/04_final_calls/global", mode: 'copy'
+    input: path(called_vcfs)
+    output: 
+        path "genome_wide_final.vcf.gz"
+        path "genome_wide_final.vcf.gz.tbi"
 
     script:
     """
-    multiqc . -c $config
+    # 1. Gera a lista mestre de amostras
+    bcftools query -l \$(ls *.called.vcf.gz | head -n 1) > samples_list.txt
+
+    # 2. Padroniza o header e INDEXA cada arquivo novamente
+    for f in *.called.vcf.gz; do
+        bcftools reheader -s samples_list.txt \$f -o fixed_\$f
+        mv fixed_\$f \$f
+        # O concat precisa do índice para funcionar com a flag -a
+        tabix -p vcf \$f
+    done
+
+    # 3. Concatena agora que todos têm headers idênticos e índices novos
+    bcftools concat -a -Oz -o genome_wide_final.vcf.gz \$(ls *.called.vcf.gz | sort -V)
+
+    # 4. Índice final do arquivo global
+    tabix -p vcf genome_wide_final.vcf.gz
     """
 }
 
 // --- WORKFLOW ---
 
 workflow {
-    // 1. Canais de Entrada
-    fastq_ch = Channel.fromPath(params.samples)
-        .splitCsv(header:true, sep:'\t')
+    fastq_ch = Channel.fromPath(params.samples).splitCsv(header:true, sep:'\t')
         .map { row -> tuple(row.sample, [file(row.r1), file(row.r2)]) }
 
     ref_file = file(params.ref)
     ref_indices = Channel.fromPath("${params.ref}.*").collect()
+    probes_file = params.probes ? file(params.probes) : []
 
-    // 2. Alinhamento e Processamento
-    ALIGN(fastq_ch, ref_file, ref_indices)
-    ADD_READ_GROUPS(ALIGN.out.bam)
-    MARK_DUPLICATES(ADD_READ_GROUPS.out.bam)
+    TRIM(fastq_ch)
+    ALIGN(TRIM.out.paired, ref_file, ref_indices)
+    INDIVIDUAL_PILEUP(ALIGN.out.bam, ref_file, ref_indices, probes_file)
 
-    // 3. Controle de Qualidade
-    QC_BAM(MARK_DUPLICATES.out.bam)
-    COVERAGE_QC(MARK_DUPLICATES.out.bam)
+    def chunks_list = create_chunks("${params.ref}.fai", params.chunk_size)
+    ch_chunks = Channel.fromList(chunks_list)
 
-    // 4. Calling Individual
-    INDIVIDUAL_CALL(MARK_DUPLICATES.out.bam, ref_file, ref_indices)
+    ch_split_input = INDIVIDUAL_PILEUP.out.vcf.combine(ch_chunks)
+    SPLIT_VCF_TO_CHUNK(ch_split_input)
 
-    // 5. Paralelismo por Regiões (Chunks de 5MB)
-    regions_ch = Channel.fromPath("regions.txt")
-        .splitText()
-        .map { it.trim() }
+    vcf_grouped_by_chunk = SPLIT_VCF_TO_CHUNK.out.chunk_vcf.groupTuple(by: 0)
 
-    vcf_list = INDIVIDUAL_CALL.out.vcf.collect()
-    tbi_list = INDIVIDUAL_CALL.out.tbi.collect()
+    ch_combined_input = vcf_grouped_by_chunk.map { chunk, vcfs, tbis ->
+        def safe_chunk = chunk.replace(':', '_').replace('-', '_')
+        
+        // Criamos placeholders locais para quando não houver passado
+        def dummy_vcf = file("${workDir}/dummy_${safe_chunk}.vcf")
+        if(!dummy_vcf.exists()) dummy_vcf.text = "" // Arquivo vazio de sinalização
 
-    MERGE_AND_CALL(vcf_list, tbi_list, regions_ch)
+        def past_vcf = dummy_vcf
+        def past_tbi = dummy_vcf // No NF, podemos passar o mesmo arquivo se não for usado
 
-    // 6. Relatórios Finais
-    multiqc_config_file = file("multiqc_config.yaml")
+        if (params.past_calls != "false") {
+            def vcf_path = file("${params.past_calls}/merged.${safe_chunk}.pileup.vcf.gz")
+            if (vcf_path.exists()) {
+                past_vcf = vcf_path
+                past_tbi = file("${vcf_path}.tbi")
+            }
+        }
+        return tuple(chunk, vcfs, tbis, past_vcf, past_tbi)
+    }
 
-    ch_reports = Channel.empty()
-        .mix(MARK_DUPLICATES.out.metrics)
-        .mix(QC_BAM.out.logs)
-        .mix(COVERAGE_QC.out.logs)
-        .mix(MERGE_AND_CALL.out.stats.collect()) // Coleta todas as stats
-        .collect()
+    MERGE_AND_CALL_BY_CHUNK(ch_combined_input, ref_file)
 
-    MULTIQC(ch_reports, multiqc_config_file)
+    CONCATENATE_ALL(MERGE_AND_CALL_BY_CHUNK.out.vcf_called.collect())
 }
