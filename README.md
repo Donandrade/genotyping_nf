@@ -2,7 +2,7 @@
 
 This pipeline performs a complete genotyping workflow: from raw read quality control to joint variant calling. It is specifically optimized for large-scale execution on the **University of Florida HiPerGator (SLURM)**.
 
-Unlike the previous Bash-based version, this **Nextflow** implementation automates sample-level and genomic parallelization, ensuring maximum efficiency and reproducibility for bioinformatics research.
+Unlike the [previous Bash-based version](git@github.com:Donandrade/genotyping_pipeline.git), this **Nextflow** implementation automates sample-level and genomic parallelization, ensuring maximum efficiency and reproducibility for bioinformatics research.
 
 ---
 
@@ -12,8 +12,6 @@ Unlike the previous Bash-based version, this **Nextflow** implementation automat
 * **Genomic Chunking:** Breaks large chromosomes into smaller, manageable chunks to speed up `bcftools merge` and `call`.
 * **Fault Tolerance:** Native support for `-resume` (starts from where it left off) and automatic retries for transient HPC errors.
 * **Incremental Merging:** Seamlessly integrates new sequence data with historical variant calls using the `--past_calls` flag.
-
-
 
 ---
 
@@ -37,12 +35,20 @@ The workflow consists of the following steps:
 * **SLURM Account:** Configured for your specific group (e.g., `munoz`).
 
 ### Required Input Files
-1.  **`samples.tsv`**: A tab-separated file with a mandatory header:
+1.  **`samples.tsv`**: A tab-separated file with a mandatory header (see exemples of sample file in `samples/` directory):
     ```text
-    sample  r1  r2
-    ID01    fastq/ID01_R1.fq.gz  fastq/ID01_R2.fq.gz
-    ID02    fastq/ID02_R1.fq.gz  fastq/ID02_R2.fq.gz
+    sample	r1	r2
+    sample0001	fastq_set1/sample0001_R1.fq.gz	fastq_set1/sample0001_R2.fq.gz
+    sample0002	fastq_set1/sample0002_R1.fq.gz	fastq_set1/sample0002_R2.fq.gz
+    sample0003	fastq_set1/sample0003_R1.fq.gz	fastq_set1/sample0003_R2.fq.gz
+    sample0004	fastq_set1/sample0004_R1.fq.gz	fastq_set1/sample0004_R2.fq.gz
+    sample0005	fastq_set1/sample0005_R1.fq.gz	fastq_set1/sample0005_R2.fq.gz
+    sample0006	fastq_set1/sample0006_R1.fq.gz	fastq_set1/sample0006_R2.fq.gz
+    sample0007	fastq_set1/sample0007_R1.fq.gz	fastq_set1/sample0007_R2.fq.gz
+    sample0008	fastq_set1/sample0008_R1.fq.gz	fastq_set1/sample0008_R2.fq.gz
+    sample0009	fastq_set1/sample0009_R1.fq.gz	fastq_set1/sample0009_R2.fq.gz
     ```
+
 2.  **Reference Genome:** A FASTA file indexed with `samtools faidx` and `bwa index`.
 3.  **Probes (Optional):** A `.bed` file to restrict analysis to specific regions of interest.
 
@@ -60,7 +66,9 @@ Edit `nextflow.config` to adjust:
 
 ### Execution
 
-Submit the pipeline using the provided wrapper script:
+This is an example of an execution where probes are targeted during the pileup generation step. Note that existing pileups (see the `MY_CHUNK` parameter below) are merged with the one generated in real-time.
+
+Submit the workflow using the provided wrapper script if you have probes and previous pileups to merge with the current run:
 
 ```bash
 sbatch --mail-user=your@email.edu \
@@ -68,13 +76,26 @@ sbatch --mail-user=your@email.edu \
        run_pipeline.sh
 ```
 
+
+This workflow sould work in others cenarios, as in the exeple below:
+
+1. You wanna run the workflow just once without probes and without previous pileups to merge
+
+```bash
+sbatch --mail-user=your@email.edu \
+       --export=ALL,MY_SAMPLES="samples.tsv",MY_PROBES="null",MY_OLD_PILEUPS="false",MY_CHUNK=10000 \
+       run_pipeline.sh
+```
+
+If you wanna test the workflow this repository has two simulated FASTQ dataset in fastq_set1/ and fastq_set2/ direcoties and the `sample.tsv` exemples in the samples directory
+
 **Variable Descriptions:**
 
 `--mail-user`: Your institutional email address for SLURM job notifications. Providing this allows the scheduler to send you real-time updates regarding job status (e.g., BEGIN, END, or FAIL).
 
-`MY_SAMPLES`: Path to your sample TSV file.
+`MY_SAMPLES`: Path to your sample TSV file (see exemples in the `samples/` directory).
 
-`MY_PROBES`: Path to your BED file (or null).
+`MY_PROBES`: Path to your BED file (or null) - see exemples in the `probes.bed` file.
 
 `MY_OLD_PILEUPS`: Path to the directory containing VCF chunks from a previous run.
 
@@ -98,3 +119,17 @@ output/
 ├── pipeline_trace.txt    # Detailed performance metrics (CPU, RAM, Time)
 └── execution_report.html # Visual performance and success report
 ```
+
+### **Test this workfloW**
+
+This workflow sould work in three cenarios:
+
+1. You wanna run the workflow just once without probes  and without previous pileups to merge
+
+1. You wanna run the workflow just once without probes  and with previous pileups to merge
+
+
+
+2. You wanna run the pileup call just on probes sites but 
+
+4. 
