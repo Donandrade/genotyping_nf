@@ -46,6 +46,7 @@ cd genotyping_nf
 
 The repository divided into scripts, acessories files (exemple of FASTQ and sample.tsv files):
 
+```bash
 genotyping_nf/
 ├── exemples
 │   ├── fastq_set1          # 1920 FASTQ simmulated to be used as exemple to test the workflow
@@ -56,6 +57,7 @@ genotyping_nf/
 ├── nextflow.config         # Workflow configuration. In this file we have the setup os input and output file, directories, ad well the conffiguration of the resources (CPU and RAM memory) allocated in each step os the workflow coded in `main.nf`
 ├── probes.bed              # This is an exemple of probes to be uses in our exemple dataset (`fastq_set1`, `fastq_set2`, `reference/`, `samples/`)
 └── run_pipeline.sh         # Chromosome/scaffold sizes
+```
 
 **Main workflow files**
 
