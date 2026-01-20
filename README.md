@@ -46,8 +46,6 @@ cd genotyping_nf
 
 The repository divided into scripts, acessories files (exemple of FASTQ and sample.tsv files):
 
-large_sample_1.tsv  large_sample_2.tsv	small_sample_1.tsv  small_sample_2.tsv	small_sample_3.tsv  small_sample_4.tsv
-
 ```bash
 genotyping_nf/
 ├── examples/               # Example datasets and metadata for testing
@@ -71,8 +69,9 @@ genotyping_nf/
 * **SLURM Account:** Configured for your specific group (e.g., `munoz`).
 
 ### Required Input Files
-1.  **`samples.tsv`**: A tab-separated file with a mandatory header (see exemples of sample file in `samples/` directory):
-    ```text
+1.  **`samples.tsv`**: A tab-separated file with a mandatory header (see examples of sample `tsv` file (`large_sample_1.tsv`, `large_sample_2.tsv`, `large_sample_2.tsv`, `small_sample_2.tsv`, `small_sample_3.tsv` and `small_sample_4.tsv`) in the `examples/` directory):
+
+```text
     sample	r1	r2
     sample0001	fastq_set1/sample0001_R1.fq.gz	fastq_set1/sample0001_R2.fq.gz
     sample0002	fastq_set1/sample0002_R1.fq.gz	fastq_set1/sample0002_R2.fq.gz
@@ -83,7 +82,7 @@ genotyping_nf/
     sample0007	fastq_set1/sample0007_R1.fq.gz	fastq_set1/sample0007_R2.fq.gz
     sample0008	fastq_set1/sample0008_R1.fq.gz	fastq_set1/sample0008_R2.fq.gz
     sample0009	fastq_set1/sample0009_R1.fq.gz	fastq_set1/sample0009_R2.fq.gz
-    ```
+ ```
 
 2.  **Reference Genome:** A FASTA file indexed with `samtools faidx` and `bwa index`.
 3.  **Probes (Optional):** A `.bed` file to restrict analysis to specific regions of interest.
