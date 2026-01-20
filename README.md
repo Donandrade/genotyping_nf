@@ -120,16 +120,3 @@ output/
 └── execution_report.html # Visual performance and success report
 ```
 
-### **Test this workfloW**
-
-This workflow sould work in three cenarios:
-
-1. You wanna run the workflow just once without probes  and without previous pileups to merge
-
-1. You wanna run the workflow just once without probes  and with previous pileups to merge
-
-
-
-2. You wanna run the pileup call just on probes sites but 
-
-4. 
