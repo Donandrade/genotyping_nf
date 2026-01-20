@@ -46,31 +46,25 @@ cd genotyping_nf
 
 The repository divided into scripts, acessories files (exemple of FASTQ and sample.tsv files):
 
+large_sample_1.tsv  large_sample_2.tsv	small_sample_1.tsv  small_sample_2.tsv	small_sample_3.tsv  small_sample_4.tsv
+
 ```bash
 genotyping_nf/
-├── exemples
-│   ├── fastq_set1          # 1920 FASTQ simmulated to be used as exemple to test the workflow
-│   ├── fastq_set2          # Other 1920 simmulated FASTQ file to be used as exemple to test the workflow
-│   ├── reference           # Optional probe regions
-│   └── probes.bed          # This is an exemple of probes to be uses in our exemple dataset (`fastq_set1`, `fastq_set2`, `reference/`, `samples/`)
-├── main.nf                 # Central Nextflow workflow with the main process to run the entire variante calling pipeline
-├── nextflow.config         # Workflow configuration. In this file we have the setup os input and output file, directories, ad well the conffiguration of the resources (CPU and RAM memory) allocated in each step os the workflow coded in `main.nf`
-├── probes.bed              # This is an exemple of probes to be uses in our exemple dataset (`fastq_set1`, `fastq_set2`, `reference/`, `samples/`)
-└── run_pipeline.sh         # Chromosome/scaffold sizes
+├── examples/               # Example datasets and metadata for testing
+│   ├── fastq_set1          # 1,920 simulated paired FASTQ files for workflow testing
+│   ├── fastq_set2          # Another 1,920 simulated FASTQ files for workflow testing
+│   ├── large_sample_1.tsv  # Sample sheet containing paths for fastq_set1 (1,920 files)
+│   ├── large_sample_2.tsv  # Sample sheet containing paths for fastq_set2 (1,920 files)
+│   ├── small_sample_1.tsv  # Sample sheet with a reduced set of FASTQ files
+│   ├── small_sample_2.tsv  # Sample sheet with a reduced set of FASTQ files
+│   ├── small_sample_3.tsv  # Sample sheet with a reduced set of FASTQ files
+│   ├── small_sample_4.tsv  # Sample sheet with a reduced set of FASTQ files
+│   ├── reference/          # Directory containing a small reference genome and its BWA indexes
+│   └── probes.bed          # Example target probes file for the provided datasets
+├── main.nf                 # Main Nextflow script containing the variant calling pipeline logic
+├── nextflow.config         # Pipeline configuration: defines parameters, I/O paths, and resource allocation (CPU/RAM)
+└── run_pipeline.sh         # Shell script to execute the Nextflow pipeline
 ```
-
-**Main workflow files**
-
-
-
-
-genotyping_samples.sh: Implements Phase 1 (per-sample processing). This script performs read trimming, alignment, read-group assignment, BAM post-processing and QC, and generates per-sample pileups. It is designed to run as a SLURM array over samples, controlled by PER_TASK.
-
-genotyping_merge.sh: Implements Phase 2 (per-chromosome or per-region processing). This script collects pileups from all samples (and optionally from previous runs), performs chromosome-wise merging, and runs variant calling. It is designed to run as a SLURM array over chromosomes or regions, as defined in CHR_LIST.
-
-`genotyping.conf`: Central configuration file sourced by all pipeline scripts. It defines input files, reference paths, resource usage, output directories, probe behavior, chromosome lists, and optional reuse of previous pileups.
-
-`submit.sh`: SLURM submission wrapper that orchestrates the workflow execution. It submits the per-sample phase first, followed by the per-chromosome merge phase, ensuring the correct execution order and array configuration.
 
 ### Prerequisites
 * **Nextflow:** (Load via `module load nextflow` on HiPerGator).
