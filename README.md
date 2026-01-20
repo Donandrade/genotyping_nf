@@ -42,7 +42,7 @@ cd genotyping_nf
 
 ---
 
-## 3. Repository Organization
+## 4. Repository Organization
 
 The repository divided into scripts, acessories files (exemple of FASTQ and sample.tsv files):
 
@@ -63,6 +63,10 @@ genotyping_nf/
 ├── nextflow.config         # Pipeline configuration: defines parameters, I/O paths, and resource allocation (CPU/RAM)
 └── run_pipeline.sh         # Shell script to execute the Nextflow pipeline
 ```
+
+**LEASE NOTE**
+
+Nextflow provides a highly efficient way to allocate CPU and RAM resources for each process in the workflow. This means you can customize the specific amount of memory and CPU cores used by each step (e.g., TRIM, ALIGN, QC, INDIVIDUAL PILEUP, SPLIT & CHUNK, MERGE & CALL, CONCATENATE). These resources are managed and defined within the nextflow.config file.
 
 ### Prerequisites
 * **Nextflow:** (Load via `module load nextflow` on HiPerGator).
@@ -89,7 +93,7 @@ genotyping_nf/
 
 ---
 
-## 4. Usage
+## 5. Usage
 
 The pipeline is designed to be submitted as a background "manager" job to prevent local timeouts.
 
@@ -138,7 +142,7 @@ Important: The chunk size of these historical files must be identical to the val
 `MY_CHUNK`: Defines the genomic window size (in base pairs) for parallel processing. This value determines how the merged pileups are split into multiple VCF chunks for simultaneous variant calling.
 Optimization Note: Avoid using excessively small values (e.g., < 5,000 bp), as creating too many small tasks can overload the cluster's file system and scheduler due to high thread and I/O overhead.
 
-## 5. Directory Structure & Outputs
+## 6. Directory Structure & Outputs
 
 The pipeline organizes results into the following structure:
 
