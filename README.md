@@ -64,7 +64,7 @@ genotyping_nf/
 └── run_pipeline.sh         # Shell script to execute the Nextflow pipeline
 ```
 
-**LEASE NOTE**
+**PLEASE NOTE**
 
 Nextflow provides a highly efficient way to allocate `CPU` and `RAM` resources for each process in the workflow. This means you can customize the specific amount of memory and CPU cores used by each step (e.g., `TRIM`, `ALIGN`, `QC`, `INDIVIDUAL PILEUP`, `SPLIT & CHUNK`, `MERGE` & `CALL` and `CONCATENATE`). These resources are managed and defined within the nextflow.config file.
 
