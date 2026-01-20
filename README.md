@@ -62,3 +62,31 @@ Edit `nextflow.config` to adjust:
 Submit the pipeline using the provided wrapper script:
 ```bash
 sbatch run_pipeline.sh
+
+Key Command-Line Arguments:
+
+--samples: Path to your sample TSV file.
+
+--probes: Path to BED file (set to null to run genome-wide).
+
+--past_calls: Path to the 04_final_calls/chunks/ directory from a previous run to enable incremental merging.
+
+--chunk_size: Size in base-pairs for genomic splitting (default: 10,000).
+
+```
+
+## 5. Directory Structure & Outputs
+
+The pipeline organizes results into the following structure:
+
+```bash
+output/
+├── 01_trimmed/           # Cleaned FASTQ files and trimming logs
+├── 02_bam/               # Sorted and indexed BAM files
+├── 04_splited_call/      # Intermediate VCFs split by genomic chunk
+├── 04_final_calls/
+│   ├── chunks/           # Per-chunk merged and called VCFs (pileup & called)
+│   └── global/           # Final 'genome_wide_final.vcf.gz' output
+├── pipeline_trace.txt    # Detailed performance metrics (CPU, RAM, Time)
+└── execution_report.html # Visual performance and success report
+```
