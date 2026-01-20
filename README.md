@@ -59,21 +59,24 @@ Edit `nextflow.config` to adjust:
 * Tool module versions.
 
 ### Execution
+
 Submit the pipeline using the provided wrapper script:
+
 ```bash
 sbatch run_pipeline.sh
+```
 
 Key Command-Line Arguments:
 
---samples: Path to your sample TSV file.
+`--samples`: Path to your sample TSV file.
 
---probes: Path to BED file (set to null to run genome-wide).
+`--probes`: Path to BED file (set to null to run genome-wide).
 
---past_calls: Path to the 04_final_calls/chunks/ directory from a previous run to enable incremental merging.
+`--past_calls`: Path to the 04_final_calls/chunks/ directory from a previous run to enable incremental merging.
 
---chunk_size: Size in base-pairs for genomic splitting (default: 10,000).
+`--chunk_size`: Size in base-pairs for genomic splitting (default: 10,000).
 
-```
+
 
 ## 5. Directory Structure & Outputs
 
