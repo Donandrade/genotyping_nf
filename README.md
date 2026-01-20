@@ -76,7 +76,9 @@ sbatch --mail-user=your@email.edu \
 
 `MY_PROBES`: Path to your BED file (or null).
 
-`MY_OLD_PILEUPS`: Path to the directory containing chunks from a previous run.
+`MY_OLD_PILEUPS`: Path to the directory containing VCF chunks from a previous run.
+
+Important: The chunk size of these historical files must be identical to the value set in the MY_CHUNK parameter to ensure correct merging.
 
 `MY_CHUNK`: Defines the genomic window size (in base pairs) for parallel processing. This value determines how the merged pileups are split into multiple VCF chunks for simultaneous variant calling.
 Optimization Note: Avoid using excessively small values (e.g., < 5,000 bp), as creating too many small tasks can overload the cluster's file system and scheduler due to high thread and I/O overhead.
