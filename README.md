@@ -63,20 +63,21 @@ Edit `nextflow.config` to adjust:
 Submit the pipeline using the provided wrapper script:
 
 ```bash
-sbatch run_pipeline.sh
+sbatch --mail-user=your@email.edu \
+       --export=ALL,MY_SAMPLES="samples.tsv",MY_PROBES="probes.bed",MY_OLD_PILEUPS="path/to/old_chunks/",MY_CHUNK=10000 \
+       run_pipeline.sh
 ```
 
-Key Command-Line Arguments:
+**Variable Descriptions:**
 
-`--samples`: Path to your sample TSV file.
+`MY_SAMPLES`: Path to your sample TSV file.
 
-`--probes`: Path to BED file (set to null to run genome-wide).
+`MY_PROBES`: Path to your BED file (or null).
 
-`--past_calls`: Path to the 04_final_calls/chunks/ directory from a previous run to enable incremental merging.
+`MY_OLD_PILEUPS`: Path to the directory containing chunks from a previous run.
 
-`--chunk_size`: Size in base-pairs for genomic splitting (default: 10,000).
-
-
+`MY_CHUNK`: Defines the genomic window size (in base pairs) for parallel processing. This value determines how the merged pileups are split into multiple VCF chunks for simultaneous variant calling.
+Optimization Note: Avoid using excessively small values (e.g., < 5,000 bp), as creating too many small tasks can overload the cluster's file system and scheduler due to high thread and I/O overhead.
 
 ## 5. Directory Structure & Outputs
 
