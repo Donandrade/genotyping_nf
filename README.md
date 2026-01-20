@@ -73,7 +73,9 @@ Nextflow provides a highly efficient way to allocate CPU and RAM resources for e
 * **SLURM Account:** Configured for your specific group (e.g., `munoz`).
 
 ### Required Input Files
-1.  **`samples.tsv`**: A tab-separated file with a mandatory header (see examples of sample `tsv` file (`large_sample_1.tsv`, `large_sample_2.tsv`, `large_sample_2.tsv`, `small_sample_2.tsv`, `small_sample_3.tsv` and `small_sample_4.tsv`) in the `examples/` directory):
+1.  **`samples.tsv`**: A tab-separated file containing a mandatory header. You can find various examples of these sample sheets in the `examples/` directory (e.g., `large_sample_1.tsv` or `small_sample_1.tsv`):
+
+The following example shows the structure and hader of the sample sheet located at `examples/large_sample_1.tsv` 
 
 ```text
     sample	r1	r2
