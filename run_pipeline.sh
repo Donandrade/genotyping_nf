@@ -9,7 +9,7 @@
 #SBATCH --mem=4GB
 #SBATCH --time=96:00:00
 #SBATCH --account=munoz
-#SBATCH --qos=munoz-b
+#SBATCH --qos=munoz
 
 # Run this sbatch script as shown below to pass the email via parameter.
 ## sbatch --mail-user=your-email@ufl.edu run_pipeline.sh
@@ -45,9 +45,11 @@ echo "========================================================"
     # -with-report logs/report.html \
     # -with-timeline logs/timeline.html
 
+# sbatch --mail-user=deandradesilvae@ufl.edu --export=ALL,MY_SAMPLES="small_sample_1.tsv",MY_PROBES="examples/probes.bed",MY_OLD_PILEUPS="false",MY_REF="",MY_CHUNK=10000  run_pipeline.sh
 
 nextflow run main.nf \
 	--samples $MY_SAMPLES \
+	--ref $MY_REF \
 	--probes $MY_PROBES \
 	--past_calls $MY_OLD_PILEUPS \
 	--chunk_size $MY_CHUNK \

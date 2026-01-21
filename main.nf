@@ -200,7 +200,7 @@ workflow {
     fastq_ch = Channel.fromPath(params.samples).splitCsv(header:true, sep:'\t')
         .map { row -> tuple(row.sample, [file(row.r1), file(row.r2)]) }
 
-    ref_file = file(params.ref)
+    ref_file = file(params.ref, checkIfExists: true)
     ref_indices = Channel.fromPath("${params.ref}.*").collect()
     probes_file = params.probes ? file(params.probes) : []
 
