@@ -35,7 +35,7 @@ The workflow consists of the following steps:
 Clone this repository into your SLURM-based HPC account before running the pipeline.
 
 ```bash
-git clone git@github.com:Donandrade/genotyping_nf.git
+git clone https://github.com/Donandrade/genotyping_nf.git
 
 cd genotyping_nf
 ```
