@@ -90,6 +90,8 @@ The following example shows the structure and header of the sample sheet located
     sample0009	fastq_set1/sample0009_R1.fq.gz	fastq_set1/sample0009_R2.fq.gz
  ```
 
+**NOTE:** Pay attention to the header of the samples file; it must be exactly as shown in the example above.
+
 2.  **Reference Genome:** A FASTA file indexed with `samtools faidx` and `bwa index` (e.g., in `examples/reference/`).
 3.  **Probes (Optional):** A `.bed` file to restrict analysis to specific regions of interest (e.g., `examples/probes.bed`).
 
