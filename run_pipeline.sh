@@ -2,59 +2,46 @@
 #SBATCH --job-name=nf_blueberry
 #SBATCH --output=logs/nf_manager_%j.log
 #SBATCH --mail-type=FAIL,END
-#SBATCH --mail-user=$MY_EMAIL
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --mem=4GB
+#SBATCH --mem=10GB
 #SBATCH --time=96:00:00
 #SBATCH --account=munoz
 #SBATCH --qos=munoz
-
-# Run this sbatch script as shown below to pass the email via parameter.
-## sbatch --mail-user=your-email@ufl.edu run_pipeline.sh
 
 # 1. Preparation
 mkdir -p logs
 module purge
 module load nextflow
 
-# 2. HiPerGator Optimization (Using local /tmp disk)
+# 2. HiPerGator Optimization
 export NXF_TEMP=$SLURM_TMPDIR
 export NXF_WORK="./work"
 export NXF_OPTS="-Xms2g -Xmx4g"
 
 echo "========================================================"
-echo "Starting Nextflow Pipeline"
+echo "Starting Nextflow Pipeline - Chromosome-based logic"
 echo "Date: $(date)"
 echo "Work Dir: $PWD"
+echo "Samples: $MY_SAMPLES"
+echo "Ref: $MY_REF"
 echo "========================================================"
 
-# 3. Simplified Execution
-# Nextflow will read 'params.ref' and 'params.samples' from nextflow.config
+# 3. Execution
+# Note: --chunk_size foi removido pois a lógica agora é por cromossomo.
+# O parâmetro --past_calls agora deve apontar para o diretório /chromosomes/ de rodadas anteriores.
 
-# Use "--probes false" to run the pileup for the entire chromosome
-# Use "--past_calls" to set the path for the previous variant calls (chunks)
-#    --past_calls 2025_calling/output/04_final_calls/chunks/ \
-# nextflow run main.nf \
-    # --samples samples/sample_2_last20.tsv \
-    # --probes probes.bed \
-    # --past_calls 2026_calling/output/04_final_calls/chunks/ \
-    # --chunk_size 10000 \
-    # -resume \
-    # -with-report logs/report.html \
-    # -with-timeline logs/timeline.html
-
-# sbatch --mail-user=deandradesilvae@ufl.edu --export=ALL,MY_SAMPLES="small_sample_1.tsv",MY_PROBES="examples/probes.bed",MY_OLD_PILEUPS="false",MY_REF="",MY_CHUNK=10000  run_pipeline.sh
+# Exemplo de submissão:
+# sbatch --mail-user=seuemail@ufl.edu --export=ALL,MY_SAMPLES="samples.tsv",MY_PROBES="probes.bed",MY_OLD_PILEUPS="false",MY_REF="ref.fa" run_pipeline.sh
 
 nextflow run main.nf \
-	--samples $MY_SAMPLES \
-	--ref $MY_REF \
-	--probes $MY_PROBES \
-	--past_calls $MY_OLD_PILEUPS \
-	--chunk_size $MY_CHUNK \
-	-resume \
-        -with-report logs/report.html \
-        -with-timeline logs/timeline.html
+    --samples "$MY_SAMPLES" \
+    --ref "$MY_REF" \
+    --probes "$MY_PROBES" \
+    --past_calls "$MY_OLD_PILEUPS" \
+    # -resume \
+    -with-report logs/report.html \
+    -with-timeline logs/timeline.html
 
 echo "Finished: $(date)"
