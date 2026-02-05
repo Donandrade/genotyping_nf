@@ -40,7 +40,7 @@ nextflow run main.nf \
     --ref "$MY_REF" \
     --probes "$MY_PROBES" \
     --past_calls "$MY_OLD_PILEUPS" \
-    # -resume \
+    -resume \
     -with-report logs/report.html \
     -with-timeline logs/timeline.html
 

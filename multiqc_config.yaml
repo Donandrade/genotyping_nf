@@ -1,7 +1,11 @@
 report_title: "Blueberry Genotyping Report"
-report_comment: "Mains qulity statistics"
+report_comment: "Main quality statistics"
 
-# 1. Organiza a ordem das seções no menu lateral
+# 1. Força o Trimmomatic a usar o nome do arquivo de log (seu $sample)
+trimmomatic_config:
+    s_name_filenames: true
+
+# 2. Organiza a ordem das seções
 report_section_order:
     trimmomatic: 10
     samtools: 20
@@ -9,26 +13,32 @@ report_section_order:
     mosdepth: 40
     bcftools: 50
 
-# 2. Configura a Tabela de Estatísticas Gerais (o topo do report)
+# 3. Configura a Tabela de Estatísticas Gerais
 table_columns_visible:
     Trimmomatic: True
     Samtools: True
-    Picard: True
     Mosdepth: True
-    BCFTools: False  # ESCONDE variantes da tabela principal para não poluir
+    BCFTools: False
 
-# 3. Cria uma tabela separada apenas para Variantes (BCFTools)
-custom_data:
-    bcftools_stats:
-        parent_id: bcftools
-        parent_name: "Variant Calling Stats"
-        section_name: "Variantes por Cromossomo"
-        description: "Estatísticas consolidadas por scaffold (scaffolds aparecem como nomes de amostra nesta seção)."
+# 4. Limpeza agressiva de nomes (essencial para agrupar as linhas)
+extra_fn_clean_exts:
+    - ".trim.log"
+    - ".stats.txt"
+    - ".raw.sort.norm.vcf.gz"
+    - ".sorted.bam"
 
-# 4. Limpeza de nomes para a tabela principal
+# 5. Backup de limpeza de sufixos
 sample_names_replace_suffixes:
     - ".sorted.group.rmdup"
     - ".sorted.group"
     - ".sorted"
     - ".trim"
     - "_paired"
+
+# 6. Tabela separada para Variantes (BCFTools)
+custom_data:
+    bcftools_stats:
+        parent_id: bcftools
+        parent_name: "Variant Calling Stats"
+        section_name: "Variant per Chromossomo"
+        description: "Scaffold statistics."

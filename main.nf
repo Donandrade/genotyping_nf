@@ -68,15 +68,26 @@ process ALIGN {
 
 process INDIVIDUAL_PILEUP {
     tag "$sample"
+
     input:  tuple val(sample), path(bam), path(bai); path ref; path ref_indices; path probes_file
-    output: tuple path("${sample}.raw.vcf.gz"), path("${sample}.raw.vcf.gz.tbi"), emit: vcf
+
+    output: tuple path("${sample}.raw.sort.norm.vcf.gz"), path("${sample}.raw.sort.norm.vcf.gz.tbi"), emit: vcf
+
     script:
-    // CORREÇÃO: Verificação mais robusta para evitar a flag -T null
+    // Verificação para evitar a flag -T null
     def has_probes = (probes_file.name != 'EMPTY_FILE' && probes_file.name != 'null')
     def target_opt = has_probes ? "-T ${probes_file}" : ""
     """
     bcftools mpileup ${target_opt} -f ${ref} --annotate FORMAT/AD,FORMAT/DP ${bam} -Oz -o ${sample}.raw.vcf.gz
     tabix -p vcf ${sample}.raw.vcf.gz
+
+    # New sort and normalized block
+    bcftools sort ${sample}.raw.vcf.gz \
+        | bcftools norm -O u --atomize -f ${ref} \
+        | bcftools norm --multiallelics -any -f ${ref} -O z -o ${sample}.raw.sort.norm.vcf.gz
+
+    tabix -f -p vcf ${sample}.raw.sort.norm.vcf.gz
+
     """
 }
 
@@ -99,7 +110,7 @@ process MERGE_AND_CALL_BY_CHROM {
     echo "${vcfs.join('\n')}" > vcf_list.txt
 
     # 1. Merge das novas amostras
-    bcftools merge -r "${chrom}" -Oz --threads ${task.cpus} -l vcf_list.txt -o new_samples.vcf.gz
+    bcftools merge -r "${chrom}" -Oz --threads ${task.cpus} -m none -l vcf_list.txt -o new_samples.vcf.gz
     tabix -f -p vcf new_samples.vcf.gz
 
     # 2. Lógica de Merge Histórico (CORRIGIDA para evitar conflito de nomes e falta de TBI)
@@ -110,7 +121,7 @@ process MERGE_AND_CALL_BY_CHROM {
         fi
 
         # Merge usando arquivo temporário para não sobrescrever a entrada durante a leitura
-        bcftools merge -r "${chrom}" --force-samples -Oz --threads ${task.cpus} \
+        bcftools merge -r "${chrom}" --force-samples -Oz --threads ${task.cpus} -m none \
             new_samples.vcf.gz ${past_vcf} -o total_temp.vcf.gz
         mv total_temp.vcf.gz merged.${chrom}.pileup.vcf.gz
     else
