@@ -132,7 +132,7 @@ process MERGE_AND_CALL_BY_CHROM {
     # 3. Variant Calling
     V_COUNT=\$(bcftools view -H merged.${chrom}.pileup.vcf.gz | head -n 1 | wc -l)
     if [ "\$V_COUNT" -gt 0 ]; then
-        bcftools call -m -Oz -o merged.${chrom}.called.vcf.gz merged.${chrom}.pileup.vcf.gz
+        bcftools call -mv -Oz -o merged.${chrom}.called.vcf.gz merged.${chrom}.pileup.vcf.gz
     else
         bcftools view -h merged.${chrom}.pileup.vcf.gz | bgzip -c > merged.${chrom}.called.vcf.gz
     fi
